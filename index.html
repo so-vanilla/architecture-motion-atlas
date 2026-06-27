@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>アーキテクチャスタイル動作図鑑</title>
+    <meta
+      name="description"
+      content="システムアーキテクチャとソフトウェアアーキテクチャの違い、挙動、利点、トレードオフ、相性を動く図で理解する静的サイト。"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="主要ナビゲーション">
+        <a class="brand" href="index.html" aria-current="page">
+          <span class="brand-mark">A</span>
+          <span>Architecture Motion Atlas</span>
+        </a>
+        <div class="nav-links">
+          <a href="system.html">システム</a>
+          <a href="software.html">ソフトウェア</a>
+          <a href="#map">対応マップ</a>
+          <a href="#tradeoff">比較軸</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">Static HTML / CSS for GitHub Pages</p>
+          <h1 id="hero-title">アーキテクチャスタイル動作図鑑</h1>
+          <p class="lead">
+            システムアーキテクチャは配置、通信、スケーリング、運用の形を扱う。
+            ソフトウェアアーキテクチャはコードの依存、責務、変更容易性の形を扱う。
+            このサイトでは両者を分け、さらに相性の良い組み合わせを理由つきで示す。
+          </p>
+          <div class="hero-actions">
+            <a class="button-link primary" href="system.html">システムを見る</a>
+            <a class="button-link" href="software.html">ソフトウェアを見る</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="システムとソフトウェアの関係を示す動く図">
+          <div class="viz viz-overview">
+            <div class="zone" style="--x: 7%; --y: 10%; --w: 38%; --h: 76%;">System Architecture</div>
+            <div class="zone" style="--x: 55%; --y: 10%; --w: 38%; --h: 76%;">Software Architecture</div>
+            <div class="unit scale" style="--x: 12%; --y: 25%; --w: 105px;">Load Balancer</div>
+            <div class="small-unit" style="--x: 12%; --y: 53%; --w: 64px;">Service A</div>
+            <div class="small-unit scale" style="--x: 36%; --y: 53%; --w: 64px;">Service A'</div>
+            <div class="store" style="--x: 24%; --y: 72%; --w: 78px; --h: 42px;">DB</div>
+            <div class="ring" style="--x: 63%; --y: 19%; --w: 170px; --h: 170px;">Adapters</div>
+            <div class="ring" style="--x: 67%; --y: 30%; --w: 122px; --h: 122px;">Use Cases</div>
+            <div class="ring center" style="--x: 71%; --y: 42%; --w: 74px; --h: 74px;">Domain</div>
+            <div class="line dashed" style="--x: 44%; --y: 45%; --w: 72px;"></div>
+            <div class="flow" style="--x: 5%; --y: 36%; --dx: 144px; --dy: 24px; --flow-color: #2f6fed;"></div>
+            <div class="flow" style="--x: 44%; --y: 44%; --dx: 100px; --dy: 0; --flow-color: #0f8b8d; --dur: 3.4s;"></div>
+            <div class="pulse" style="--x: 26%; --y: 48%; --pulse-color: #2f9e44;"></div>
+            <div class="badge good" style="--x: 10%; --y: 83%;">scale / deploy</div>
+            <div class="badge" style="--x: 62%; --y: 83%;">dependency rule</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="separation-title">
+        <div class="section-heading">
+          <p class="eyebrow">Boundary</p>
+          <h2 id="separation-title">混同しないための境界</h2>
+          <p>
+            同じ「アーキテクチャ」でも、何を設計対象にしているかが違う。
+            システム側の選択は実行時の構成に効き、ソフトウェア側の選択は変更時の構造に効く。
+          </p>
+        </div>
+        <div class="two-col">
+          <article class="overview-panel">
+            <h3>システムアーキテクチャ</h3>
+            <p>
+              ネットワーク上の配置、デプロイ単位、通信方式、可用性、スケール方式、
+              障害分離、運用境界を決める。図ではリクエスト、イベント、障害、レプリカ増減を動かす。
+            </p>
+            <ul>
+              <li>主な問い: どこで動き、どう接続し、どう増減するか</li>
+              <li>代表例: Microservices、Serverless、Edge、Event-Driven System</li>
+              <li>失敗しやすい点: 分散化による運用複雑性を過小評価すること</li>
+            </ul>
+          </article>
+          <article class="overview-panel">
+            <h3>ソフトウェアアーキテクチャ</h3>
+            <p>
+              コード内部の依存方向、責務分離、ドメイン境界、状態更新、テスト容易性、
+              変更影響範囲を決める。図では依存方向、更新伝播、境界越え、投影の遅延を動かす。
+            </p>
+            <ul>
+              <li>主な問い: どの責務をどこに置き、何に依存させるか</li>
+              <li>代表例: Clean、Hexagonal、CQRS、DDD、Modular Monolith</li>
+              <li>失敗しやすい点: 形式を導入しても境界の意味を保てないこと</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="map" aria-labelledby="map-title">
+        <div class="section-heading">
+          <p class="eyebrow">Pairing Map</p>
+          <h2 id="map-title">相性の方向性</h2>
+          <p>
+            相性は絶対ではない。ここでは「その組み合わせにすると、制約と利点が自然に噛み合いやすい」
+            という意味で扱う。
+          </p>
+        </div>
+        <div class="map-grid">
+          <div class="map-row">
+            <strong>Microservices → Hexagonal / DDD / CQRS</strong>
+            <span>サービス境界ごとにドメインと外部 adapter を分け、読み書きの負荷差にも対応しやすい。</span>
+          </div>
+          <div class="map-row">
+            <strong>3-Tier → Layered / MVC</strong>
+            <span>画面、アプリケーション処理、データ層の分離が、配置上の階層と対応する。</span>
+          </div>
+          <div class="map-row">
+            <strong>Event-Driven System → Event Sourcing / CQRS</strong>
+            <span>イベントを主語にした連携と、イベントから読み取りモデルを作る設計が揃う。</span>
+          </div>
+          <div class="map-row">
+            <strong>Serverless → Pipeline / Hexagonal</strong>
+            <span>イベント入力と外部サービス依存を明確に分けると、関数の粒度を保ちやすい。</span>
+          </div>
+          <div class="map-row">
+            <strong>Monolithic System → Modular Monolith / Layered</strong>
+            <span>単一デプロイの単純さを保ちながら、コード上の境界で変更影響を抑えられる。</span>
+          </div>
+          <div class="map-row">
+            <strong>Hybrid / Edge → Plugin / Microkernel</strong>
+            <span>中核を固定し、環境差分や地域別拡張だけを差し替える用途に向く。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="tradeoff" aria-labelledby="tradeoff-title">
+        <div class="section-heading">
+          <p class="eyebrow">Trade-off Axes</p>
+          <h2 id="tradeoff-title">比較軸</h2>
+          <p>
+            図の中では、利点だけでなく負荷が増える軸もバーで示す。スケールや疎結合が強くなるほど、
+            運用、観測、整合性、設計規律の負担が増える場合がある。
+          </p>
+        </div>
+        <div class="matrix" role="table" aria-label="代表的なアーキテクチャ比較">
+          <div class="matrix-row" role="row">
+            <span role="columnheader">スタイル</span>
+            <span role="columnheader">独立スケール</span>
+            <span role="columnheader">変更影響局所化</span>
+            <span role="columnheader">運用負荷</span>
+            <span role="columnheader">整合性難度</span>
+          </div>
+          <div class="matrix-row" role="row">
+            <span>Layered + 3-Tier</span>
+            <span><b class="score mid">中</b></span>
+            <span><b class="score mid">中</b></span>
+            <span><b class="score low">低</b></span>
+            <span><b class="score low">低</b></span>
+          </div>
+          <div class="matrix-row" role="row">
+            <span>Modular Monolith</span>
+            <span><b class="score low">低</b></span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score low">低</b></span>
+            <span><b class="score low">低</b></span>
+          </div>
+          <div class="matrix-row" role="row">
+            <span>Microservices + DDD</span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score risk">高</b></span>
+            <span><b class="score risk">高</b></span>
+          </div>
+          <div class="matrix-row" role="row">
+            <span>Event-Driven + CQRS</span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score risk">高</b></span>
+            <span><b class="score risk">高</b></span>
+          </div>
+          <div class="matrix-row" role="row">
+            <span>Serverless + Pipeline</span>
+            <span><b class="score high">高</b></span>
+            <span><b class="score mid">中</b></span>
+            <span><b class="score mid">中</b></span>
+            <span><b class="score mid">中</b></span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>
+          この成果物は静的 HTML/CSS のみで構成される。GitHub Pages では `outputs/` 内のファイルを公開対象にすれば動作する。
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

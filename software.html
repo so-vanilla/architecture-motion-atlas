@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ソフトウェアアーキテクチャ | Architecture Motion Atlas</title>
+    <meta
+      name="description"
+      content="ソフトウェアアーキテクチャの代表スタイルを、動く図、利点、トレードオフ、相性の良いシステムアーキテクチャとともに説明する。"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="主要ナビゲーション">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">A</span>
+          <span>Architecture Motion Atlas</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">入口</a>
+          <a href="system.html">システム</a>
+          <a href="software.html" aria-current="page">ソフトウェア</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="section-heading">
+        <p class="eyebrow">Software Architecture</p>
+        <h1>ソフトウェアアーキテクチャ</h1>
+        <p class="lead">
+          ここで扱うのは、コード内部の責務、依存方向、境界、状態更新、テスト容易性である。
+          実行環境の配置ではなく、変更がどこへ波及し、何を守るための構造かを見る。
+        </p>
+      </section>
+
+      <section class="section" aria-labelledby="toc-title">
+        <div class="toc-panel">
+          <h2 id="toc-title">一覧</h2>
+          <ul class="toc-list">
+            <li><a href="#layered">Layered Architecture</a></li>
+            <li><a href="#clean">Clean Architecture</a></li>
+            <li><a href="#hexagonal">Hexagonal Architecture</a></li>
+            <li><a href="#mvc">MVC</a></li>
+            <li><a href="#mvvm">MVVM</a></li>
+            <li><a href="#modular-monolith">Modular Monolith</a></li>
+            <li><a href="#ddd">Domain-Driven Design</a></li>
+            <li><a href="#cqrs">CQRS</a></li>
+            <li><a href="#event-sourcing">Event Sourcing</a></li>
+            <li><a href="#pipeline">Pipeline Architecture</a></li>
+            <li><a href="#plugin">Plugin Architecture</a></li>
+            <li><a href="#microkernel">Microkernel Architecture</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section arch-list" aria-label="ソフトウェアアーキテクチャ一覧">
+        <article class="arch-card" id="layered">
+          <div class="arch-head">
+            <p class="eyebrow">01</p>
+            <h2>Layered Architecture</h2>
+            <p>UI、Application、Domain、Infrastructure のように責務を層に分け、上位が下位を使う形にする。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz" role="img" aria-label="層をまたいで依存が下向きに流れる図">
+              <div class="layer" style="--x: 12%; --y: 14%;">UI / Presentation</div>
+              <div class="layer" style="--x: 12%; --y: 31%;">Application</div>
+              <div class="layer" style="--x: 12%; --y: 48%;">Domain</div>
+              <div class="layer" style="--x: 12%; --y: 65%;">Infrastructure</div>
+              <div class="flow" style="--x: 48%; --y: 24%; --dx: 0; --dy: 112px; --flow-color: #2f6fed; --dur: 3.2s;"></div>
+              <div class="flow" style="--x: 54%; --y: 24%; --dx: 0; --dy: 112px; --flow-color: #0f8b8d; --dur: 3.6s;"></div>
+              <div class="line dashed" style="--x: 23%; --y: 72%; --w: 160px; --r: -34deg;"></div>
+              <div class="badge alert" style="--x: 18%; --y: 82%;">skip layer = coupling</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 依存は上から下へ流れる。下層を飛ばした呼び出しが増えると層の意味が薄れ、結合が強くなる。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>責務分離が分かりやすく、一般的な Web 業務アプリに導入しやすい。</li>
+                  <li>変更箇所を層単位で探しやすく、学習コストが比較的低い。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>理解容易性</span><span class="track" style="--value: 88; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>過剰抽象</span><span class="track" style="--value: 52; --meter-color: #c47f00;"></span><span>中</span></div>
+                  <div class="meter"><span>境界侵食</span><span class="track" style="--value: 64; --meter-color: #d94841;"></span><span>中</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">3-Tier / N-Tier</span><span class="tag">Monolithic System</span><span class="tag">Client-Server</span></div>
+                <p>コード上の層と配置上の層を対応させやすく、単一アプリでも責務分離の説明がしやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="clean">
+          <div class="arch-head">
+            <p class="eyebrow">02</p>
+            <h2>Clean Architecture</h2>
+            <p>ドメインやユースケースを中心に置き、外側の UI、DB、Framework から中心へ依存させる。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-clean" role="img" aria-label="外側から内側へ依存が向かう同心円の図">
+              <div class="ring" style="--x: 18%; --y: 10%; --w: 230px; --h: 230px;"></div>
+              <div class="ring" style="--x: 26%; --y: 19%; --w: 170px; --h: 170px;"></div>
+              <div class="ring" style="--x: 34%; --y: 29%; --w: 112px; --h: 112px;"></div>
+              <div class="ring center" style="--x: 41%; --y: 40%; --w: 62px; --h: 62px;">Domain</div>
+              <div class="badge" style="--x: 14%; --y: 11%;">Frameworks</div>
+              <div class="badge" style="--x: 60%; --y: 23%;">Adapters</div>
+              <div class="badge" style="--x: 19%; --y: 67%;">Use Cases</div>
+              <div class="flow" style="--x: 15%; --y: 45%; --dx: 118px; --dy: 0; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 68%; --y: 44%; --dx: -116px; --dy: 0; --flow-color: #0f8b8d; --dur: 3.4s;"></div>
+              <div class="pulse" style="--x: 42%; --y: 42%; --pulse-color: #c47f00;"></div>
+              <div class="badge good" style="--x: 31%; --y: 83%;">dependency inward</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 入出力は外側で変換され、依存は中心へ向かう。DB や UI が変わっても中心の業務規則を守る。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>業務規則をフレームワークや外部サービスから独立させやすい。</li>
+                  <li>中心部分をユニットテストしやすく、長寿命のドメインに向く。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>独立性</span><span class="track" style="--value: 86; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>初期手数</span><span class="track" style="--value: 70; --meter-color: #c47f00;"></span><span>高</span></div>
+                  <div class="meter"><span>形式先行リスク</span><span class="track" style="--value: 62; --meter-color: #d94841;"></span><span>中</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Microservices</span><span class="tag">Hybrid / Distributed</span><span class="tag">Serverless</span></div>
+                <p>外部通信、DB、クラウドサービスを外側に隔離できるため、配置や実行基盤が変わっても中心を保ちやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="hexagonal">
+          <div class="arch-head">
+            <p class="eyebrow">03</p>
+            <h2>Hexagonal Architecture</h2>
+            <p>アプリケーションの中心にポートを置き、外部の DB、API、UI、メッセージングを adapter として接続する。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-hexagonal" role="img" aria-label="中心のアプリケーションへ複数 adapter がポートを通じて接続する図">
+              <div class="unit" style="--x: 37%; --y: 36%; --w: 110px; --h: 76px;">Application Core</div>
+              <div class="small-unit warn" style="--x: 28%; --y: 0%; --w: 72px;">Inbound Port</div>
+              <div class="small-unit warn" style="--x: 57%; --y: 0%; --w: 78px;">Outbound Port</div>
+              <div class="small-unit" style="--x: 8%; --y: 18%; --w: 74px;">Web UI</div>
+              <div class="small-unit" style="--x: 8%; --y: 66%; --w: 74px;">CLI</div>
+              <div class="store" style="--x: 74%; --y: 18%; --w: 74px; --h: 46px;">DB</div>
+              <div class="small-unit" style="--x: 74%; --y: 66%; --w: 74px;">API</div>
+              <div class="flow" style="--x: 23%; --y: 26%; --dx: 112px; --dy: 48px; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 24%; --y: 73%; --dx: 108px; --dy: -38px; --flow-color: #0f8b8d;"></div>
+              <div class="flow" style="--x: 56%; --y: 42%; --dx: 102px; --dy: -38px; --flow-color: #c47f00;"></div>
+              <div class="flow" style="--x: 56%; --y: 48%; --dx: 102px; --dy: 45px; --flow-color: #6f42c1;"></div>
+              <div class="badge good" style="--x: 35%; --y: 82%;">core sees ports</div>
+              <div class="pulse" style="--x: 43%; --y: 42%; --pulse-color: #0f8b8d;"></div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 複数の入口と出口がポートを通じて中心へ接続する。adapter を差し替えても中心の契約は維持する。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>外部技術の差し替えとテストダブルの利用がしやすい。</li>
+                  <li>外部サービスの都合をドメインロジックへ漏らしにくい。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>差し替え容易</span><span class="track" style="--value: 88; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>adapter 数</span><span class="track" style="--value: 70; --meter-color: #c47f00;"></span><span>高</span></div>
+                  <div class="meter"><span>契約設計負荷</span><span class="track" style="--value: 74; --meter-color: #d94841;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Microservices</span><span class="tag">SOA</span><span class="tag">Hybrid / Distributed</span></div>
+                <p>外部システムや通信方式が多い構成で、接続方式を adapter として隔離できるため変更に耐えやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="mvc">
+          <div class="arch-head">
+            <p class="eyebrow">04</p>
+            <h2>MVC</h2>
+            <p>Model、View、Controller に分け、ユーザー入力、状態、表示の責務を整理する UI 中心の構造。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz" role="img" aria-label="Controller が入力を受け、Model を更新し、View が表示する図">
+              <div class="unit" style="--x: 9%; --y: 39%; --w: 94px;">Controller</div>
+              <div class="unit" style="--x: 42%; --y: 18%; --w: 94px;">Model</div>
+              <div class="unit scale" style="--x: 70%; --y: 58%; --w: 94px;">View</div>
+              <div class="flow" style="--x: 28%; --y: 44%; --dx: 116px; --dy: -58px; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 55%; --y: 34%; --dx: 80px; --dy: 70px; --flow-color: #0f8b8d;"></div>
+              <div class="flow" style="--x: 76%; --y: 64%; --dx: -252px; --dy: -4px; --flow-color: #c47f00; --dur: 4.4s;"></div>
+              <div class="badge" style="--x: 6%; --y: 68%;">input</div>
+              <div class="badge good" style="--x: 66%; --y: 82%;">render</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 入力は Controller が受け、Model の状態を変え、View が表示を更新する。表示責務と状態責務を分ける。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>Web アプリや GUI で、入力処理、状態、表示の責務を説明しやすい。</li>
+                  <li>フレームワークの標準構造として採用されることが多い。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>UI 整理</span><span class="track" style="--value: 82; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>Controller 肥大</span><span class="track" style="--value: 70; --meter-color: #d94841;"></span><span>高</span></div>
+                  <div class="meter"><span>ドメイン保護</span><span class="track" style="--value: 48; --meter-color: #c47f00;"></span><span>中</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Client-Server</span><span class="tag">3-Tier / N-Tier</span><span class="tag">Monolithic System</span></div>
+                <p>同期リクエストと画面生成の流れが明確な構成で、MVC の制御フローと合わせやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="mvvm">
+          <div class="arch-head">
+            <p class="eyebrow">05</p>
+            <h2>MVVM</h2>
+            <p>View と ViewModel をデータバインディングでつなぎ、表示状態とドメイン状態の変換を ViewModel に寄せる。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-mvvm" role="img" aria-label="View と ViewModel が双方向に同期し、Model へ更新が流れる図">
+              <div class="unit scale" style="--x: 9%; --y: 38%; --w: 96px;">View</div>
+              <div class="unit" style="--x: 39%; --y: 38%; --w: 112px;">ViewModel</div>
+              <div class="unit" style="--x: 74%; --y: 38%; --w: 88px;">Model</div>
+              <div class="flow" style="--x: 29%; --y: 43%; --dx: 96px; --dy: 0; --flow-color: #2f6fed; --dur: 2.6s;"></div>
+              <div class="flow" style="--x: 50%; --y: 56%; --dx: -98px; --dy: 0; --flow-color: #0f8b8d; --dur: 2.9s;"></div>
+              <div class="flow" style="--x: 60%; --y: 47%; --dx: 94px; --dy: 0; --flow-color: #6f42c1; --dur: 3.3s;"></div>
+              <div class="pulse" style="--x: 15%; --y: 42%; --pulse-color: #2f9e44;"></div>
+              <div class="badge good" style="--x: 30%; --y: 67%;">binding</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: View と ViewModel の間で表示状態が同期され、業務状態は Model 側へ渡る。UI 状態の変換点が見える。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>複雑な画面状態を View から分離し、テストしやすくする。</li>
+                  <li>デスクトップ、モバイル、SPA など状態同期が多い UI に向く。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>状態整理</span><span class="track" style="--value: 84; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>バインド複雑性</span><span class="track" style="--value: 72; --meter-color: #d94841;"></span><span>高</span></div>
+                  <div class="meter"><span>追跡容易性</span><span class="track" style="--value: 52; --meter-color: #c47f00;"></span><span>中</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Client-Server</span><span class="tag">3-Tier / N-Tier</span><span class="tag">Edge / CDN-Oriented</span></div>
+                <p>画面側で状態を持つ構成や、フロント配信をエッジに寄せる構成で、UI 状態と API 状態を分離しやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="modular-monolith">
+          <div class="arch-head">
+            <p class="eyebrow">06</p>
+            <h2>Modular Monolith</h2>
+            <p>単一デプロイのまま、コード内部を明確なモジュール境界で分ける。モノリスとマイクロサービスの中間的な選択肢。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-modular-monolith" role="img" aria-label="単一アプリ内部に境界を持つ複数モジュールがある図">
+              <div class="zone" style="--x: 11%; --y: 12%; --w: 78%; --h: 73%;">Single Process / Single Deploy</div>
+              <div class="module-grid" style="--x: 21%; --y: 28%; --w: 250px; --cols: 2;">
+                <div class="module boundary">Catalog</div>
+                <div class="module boundary">Orders</div>
+                <div class="module boundary">Billing</div>
+                <div class="module leak">Shared DB Access</div>
+              </div>
+              <div class="flow" style="--x: 28%; --y: 37%; --dx: 140px; --dy: 0; --flow-color: #0f8b8d;"></div>
+              <div class="flow" style="--x: 43%; --y: 65%; --dx: 80px; --dy: -38px; --flow-color: #d94841; --dur: 3.8s;"></div>
+              <div class="badge alert" style="--x: 26%; --y: 78%;">boundary bypass</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 通常の呼び出しは公開境界を通る。共有 DB 直アクセスのような近道が増えると、モジュール境界が崩れる。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>分散運用の複雑さを避けつつ、コード上の変更影響を局所化できる。</li>
+                  <li>必要になったモジュールを将来サービス化する準備にもなる。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>運用単純性</span><span class="track" style="--value: 84; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>規律依存</span><span class="track" style="--value: 82; --meter-color: #d94841;"></span><span>高</span></div>
+                  <div class="meter"><span>部分スケール</span><span class="track" style="--value: 30; --meter-color: #c47f00;"></span><span>低</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Monolithic System</span><span class="tag">3-Tier / N-Tier</span><span class="tag">Hybrid / Distributed</span></div>
+                <p>単一デプロイの利点を残しつつ、移行や将来分割のための境界をコード上に置ける。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="ddd">
+          <div class="arch-head">
+            <p class="eyebrow">07</p>
+            <h2>Domain-Driven Design</h2>
+            <p>業務ドメインを中心に、Bounded Context、ユビキタス言語、集約、ドメインイベントなどでモデルを分ける。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-ddd" role="img" aria-label="複数の境界づけられたコンテキストがイベントと変換層で連携する図">
+              <div class="unit" style="--x: 7%; --y: 24%; --w: 112px;">Ordering Context</div>
+              <div class="unit" style="--x: 43%; --y: 24%; --w: 112px;">Billing Context</div>
+              <div class="unit" style="--x: 43%; --y: 62%; --w: 112px;">Inventory Context</div>
+              <div class="small-unit warn" style="--x: 26%; --y: 45%; --w: 70px;">ACL</div>
+              <div class="badge" style="--x: 8%; --y: 15%;">order terms</div>
+              <div class="badge" style="--x: 44%; --y: 15%;">billing terms</div>
+              <div class="badge wait" style="--x: 25%; --y: 61%;">translate model</div>
+              <div class="flow" style="--x: 28%; --y: 34%; --dx: 90px; --dy: 0; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 28%; --y: 42%; --dx: 94px; --dy: 58px; --flow-color: #0f8b8d; --dur: 3.5s;"></div>
+              <div class="pulse" style="--x: 11%; --y: 31%; --pulse-color: #c47f00;"></div>
+              <div class="badge good" style="--x: 8%; --y: 67%;">domain event</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 各コンテキストは独自モデルを持ち、イベントや ACL を通じて連携する。言葉とモデルの境界を保つ。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>業務の複雑さをモデルとして扱い、チームやサービスの境界を決めやすい。</li>
+                  <li>ドメイン知識がコードに現れるため、長期保守で認知負荷を下げやすい。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>業務適合</span><span class="track" style="--value: 90; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>分析コスト</span><span class="track" style="--value: 80; --meter-color: #c47f00;"></span><span>高</span></div>
+                  <div class="meter"><span>境界誤認リスク</span><span class="track" style="--value: 72; --meter-color: #d94841;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Microservices</span><span class="tag">Monolithic System</span><span class="tag">Event-Driven System</span></div>
+                <p>Bounded Context をサービスやモジュールの候補にでき、ドメインイベントで境界間の連携を表しやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="cqrs">
+          <div class="arch-head">
+            <p class="eyebrow">08</p>
+            <h2>CQRS</h2>
+            <p>Command と Query のモデルを分離する。書き込みの整合性と読み取りの最適化を別々に設計する。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-cqrs" role="img" aria-label="コマンド側とクエリ側が分離し、読み取りモデルへ遅れて反映される図">
+              <div class="unit" style="--x: 7%; --y: 22%; --w: 90px;">Command</div>
+              <div class="unit" style="--x: 34%; --y: 22%; --w: 100px;">Write Model</div>
+              <div class="queue" style="--x: 55%; --y: 38%; --w: 86px;">Event</div>
+              <div class="unit scale" style="--x: 74%; --y: 55%; --w: 96px;">Read Model</div>
+              <div class="unit" style="--x: 7%; --y: 64%; --w: 90px;">Query</div>
+              <div class="flow" style="--x: 25%; --y: 31%; --dx: 96px; --dy: 0; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 49%; --y: 37%; --dx: 94px; --dy: 40px; --flow-color: #c47f00; --dur: 4.5s;"></div>
+              <div class="flow" style="--x: 26%; --y: 72%; --dx: 224px; --dy: 0; --flow-color: #0f8b8d; --dur: 2.6s;"></div>
+              <div class="badge wait" style="--x: 45%; --y: 82%;">eventual consistency</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 書き込みは Write Model に入り、イベントを通じて Read Model が遅れて更新される。読み取りは最適化済みモデルを直接参照する。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>読み取り負荷が大きい場合、クエリ用モデルを用途別に最適化できる。</li>
+                  <li>書き込みのビジネス制約と読み取りの表示要件を分けられる。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>読み取り性能</span><span class="track" style="--value: 88; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>結果整合性</span><span class="track" style="--value: 78; --meter-color: #c47f00;"></span><span>高</span></div>
+                  <div class="meter"><span>モデル数</span><span class="track" style="--value: 76; --meter-color: #d94841;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Event-Driven System</span><span class="tag">Microservices</span><span class="tag">Edge / CDN-Oriented</span></div>
+                <p>読み取りと書き込みを別スケールにでき、イベント連携やキャッシュ配信と自然に組み合わせられる。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="event-sourcing">
+          <div class="arch-head">
+            <p class="eyebrow">09</p>
+            <h2>Event Sourcing</h2>
+            <p>現在状態だけでなく、状態変化のイベント列を事実として保存する。状態はイベントの再生から復元する。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-event-sourcing" role="img" aria-label="コマンドからイベントログへ追記され、投影で現在状態が作られる図">
+              <div class="unit" style="--x: 6%; --y: 38%; --w: 90px;">Command</div>
+              <div class="queue" style="--x: 32%; --y: 22%; --w: 120px; --h: 96px;">Event Log</div>
+              <div class="unit scale" style="--x: 68%; --y: 22%; --w: 100px;">Projection</div>
+              <div class="store" style="--x: 70%; --y: 62%; --w: 88px; --h: 50px;">State View</div>
+              <div class="event-item" style="--x: 36%; --y: 36%;"></div>
+              <div class="event-item" style="--x: 36%; --y: 47%; --queue-color: #0f8b8d;"></div>
+              <div class="event-item" style="--x: 36%; --y: 58%; --queue-color: #6f42c1;"></div>
+              <div class="flow" style="--x: 23%; --y: 46%; --dx: 96px; --dy: -26px; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 55%; --y: 40%; --dx: 90px; --dy: 0; --flow-color: #c47f00; --dur: 4s;"></div>
+              <div class="flow" style="--x: 73%; --y: 47%; --dx: 0; --dy: 60px; --flow-color: #0f8b8d; --dur: 3.6s;"></div>
+              <div class="badge good" style="--x: 31%; --y: 72%;">append only</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: コマンドからイベントが追記され、Projection がイベントを再生して読み取り用の状態を作る。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>監査、履歴、再構築に強く、なぜその状態になったかを追いやすい。</li>
+                  <li>後から新しい Projection を作り、過去イベントから別の見方を生成できる。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>監査性</span><span class="track" style="--value: 94; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>設計難度</span><span class="track" style="--value: 84; --meter-color: #d94841;"></span><span>高</span></div>
+                  <div class="meter"><span>イベント進化</span><span class="track" style="--value: 78; --meter-color: #c47f00;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Event-Driven System</span><span class="tag">Data Pipeline</span><span class="tag">Microservices</span></div>
+                <p>イベントログを連携や分析に使えるため、イベント中心のシステムや履歴分析と相性が良い。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="pipeline">
+          <div class="arch-head">
+            <p class="eyebrow">10</p>
+            <h2>Pipeline Architecture</h2>
+            <p>入力を複数の段階に通し、各段階が変換、検証、集約、出力など一つの責務を担う。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-pipeline" role="img" aria-label="入力が複数の処理段階を順番に流れる図">
+              <div class="small-unit" style="--x: 6%; --y: 42%; --w: 72px;">Input</div>
+              <div class="unit" style="--x: 25%; --y: 38%; --w: 82px;">Parse</div>
+              <div class="unit scale" style="--x: 44%; --y: 38%; --w: 82px;">Validate</div>
+              <div class="unit" style="--x: 63%; --y: 38%; --w: 92px;">Transform</div>
+              <div class="small-unit" style="--x: 82%; --y: 42%; --w: 72px;">Output</div>
+              <div class="flow" style="--x: 19%; --y: 48%; --dx: 58px; --dy: 0; --flow-color: #2f6fed; --dur: 2.2s;"></div>
+              <div class="flow" style="--x: 38%; --y: 48%; --dx: 58px; --dy: 0; --flow-color: #0f8b8d; --dur: 2.2s;"></div>
+              <div class="flow" style="--x: 57%; --y: 48%; --dx: 58px; --dy: 0; --flow-color: #c47f00; --dur: 2.2s;"></div>
+              <div class="flow" style="--x: 76%; --y: 48%; --dx: 52px; --dy: 0; --flow-color: #2f9e44; --dur: 2.2s;"></div>
+              <div class="badge good" style="--x: 39%; --y: 67%;">stage isolation</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: データが段階を順に通過する。重い段階だけを複数化すれば、流量の詰まりを緩和できる。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>各段階の責務を小さくし、再利用、テスト、差し替えをしやすい。</li>
+                  <li>データ変換、画像処理、ETL、CI/CD など直列処理に向く。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>段階分離</span><span class="track" style="--value: 86; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>全体遅延</span><span class="track" style="--value: 66; --meter-color: #c47f00;"></span><span>中</span></div>
+                  <div class="meter"><span>失敗再処理</span><span class="track" style="--value: 70; --meter-color: #d94841;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Data Pipeline</span><span class="tag">Serverless</span><span class="tag">Event-Driven System</span></div>
+                <p>段階ごとにキュー、関数、ジョブへ分けやすく、処理量に応じたスケールにも合わせやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="plugin">
+          <div class="arch-head">
+            <p class="eyebrow">11</p>
+            <h2>Plugin Architecture</h2>
+            <p>安定したコアに拡張ポイントを用意し、追加機能を plugin として差し込む。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-plugin" role="img" aria-label="コアに複数プラグインが接続される図">
+              <div class="unit" style="--x: 39%; --y: 37%; --w: 112px; --h: 76px;">Core</div>
+              <div class="slot scale" style="--x: 8%; --y: 18%; --w: 86px;">Plugin A</div>
+              <div class="slot" style="--x: 8%; --y: 65%; --w: 86px;">Plugin B</div>
+              <div class="slot" style="--x: 72%; --y: 18%; --w: 86px;">Plugin C</div>
+              <div class="slot warn" style="--x: 72%; --y: 65%; --w: 86px;">Plugin D</div>
+              <div class="flow" style="--x: 24%; --y: 27%; --dx: 116px; --dy: 52px; --flow-color: #6f42c1;"></div>
+              <div class="flow" style="--x: 24%; --y: 72%; --dx: 116px; --dy: -30px; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 57%; --y: 43%; --dx: 116px; --dy: -44px; --flow-color: #0f8b8d;"></div>
+              <div class="flow" style="--x: 57%; --y: 48%; --dx: 116px; --dy: 42px; --flow-color: #c47f00;"></div>
+              <div class="badge good" style="--x: 37%; --y: 18%;">extension points</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: plugin はコアの拡張ポイントを通じて接続される。コア契約が安定していれば追加機能を差し替えやすい。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>個別機能や顧客別拡張をコアから分離できる。</li>
+                  <li>拡張開発者とコア開発者の作業境界を作りやすい。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>拡張性</span><span class="track" style="--value: 90; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>API 固定負荷</span><span class="track" style="--value: 78; --meter-color: #c47f00;"></span><span>高</span></div>
+                  <div class="meter"><span>互換性管理</span><span class="track" style="--value: 82; --meter-color: #d94841;"></span><span>高</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">SOA</span><span class="tag">Hybrid / Distributed</span><span class="tag">Edge / CDN-Oriented</span></div>
+                <p>環境差分や外部連携差分を拡張として扱えるため、複数環境や顧客別構成に対応しやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="arch-card" id="microkernel">
+          <div class="arch-head">
+            <p class="eyebrow">12</p>
+            <h2>Microkernel Architecture</h2>
+            <p>最小限の中核機能を kernel に集約し、周辺機能を extension として追加する。Plugin Architecture の一種として扱われることもある。</p>
+          </div>
+          <div class="arch-layout">
+            <div class="viz viz-microkernel" role="img" aria-label="小さなカーネルの周りに拡張機能が接続される図">
+              <div class="ring" style="--x: 23%; --y: 13%; --w: 210px; --h: 210px;"></div>
+              <div class="badge" style="--x: 35%; --y: 12%;">Extensions</div>
+              <div class="unit hot" style="--x: 41%; --y: 39%; --w: 86px; --h: 62px;">Kernel</div>
+              <div class="small-unit" style="--x: 17%; --y: 28%; --w: 72px;">Ext A</div>
+              <div class="small-unit" style="--x: 63%; --y: 28%; --w: 72px;">Ext B</div>
+              <div class="small-unit scale" style="--x: 17%; --y: 64%; --w: 72px;">Ext C</div>
+              <div class="small-unit" style="--x: 63%; --y: 64%; --w: 72px;">Ext D</div>
+              <div class="flow" style="--x: 31%; --y: 35%; --dx: 64px; --dy: 36px; --flow-color: #2f6fed;"></div>
+              <div class="flow" style="--x: 60%; --y: 35%; --dx: -66px; --dy: 35px; --flow-color: #0f8b8d;"></div>
+              <div class="flow" style="--x: 31%; --y: 70%; --dx: 66px; --dy: -30px; --flow-color: #6f42c1;"></div>
+              <div class="badge wait" style="--x: 35%; --y: 78%;">kernel contract</div>
+            </div>
+            <div class="arch-copy">
+              <p class="motion-note">動き: 小さな kernel が共通機構を提供し、extension が機能を追加する。kernel が太ると拡張性が落ちる。</p>
+              <div class="fact-block">
+                <h3>利点</h3>
+                <ul>
+                  <li>中核を安定させ、周辺機能を独立して追加、削除、更新しやすい。</li>
+                  <li>IDE、OS 周辺、業務プラットフォームなど拡張前提の製品に向く。</li>
+                </ul>
+              </div>
+              <div class="fact-block">
+                <h3>トレードオフ</h3>
+                <div class="meters">
+                  <div class="meter"><span>中核安定性</span><span class="track" style="--value: 84; --meter-color: #2f9e44;"></span><span>高</span></div>
+                  <div class="meter"><span>契約設計</span><span class="track" style="--value: 84; --meter-color: #d94841;"></span><span>高</span></div>
+                  <div class="meter"><span>性能間接性</span><span class="track" style="--value: 62; --meter-color: #c47f00;"></span><span>中</span></div>
+                </div>
+              </div>
+              <div class="match">
+                <h3>相性の良いシステムアーキテクチャ</h3>
+                <div class="tag-line"><span class="tag">Edge / CDN-Oriented</span><span class="tag">Hybrid / Distributed</span><span class="tag">SOA</span></div>
+                <p>共通中核と環境別拡張の形に分けると、地域差、顧客差、連携先差分を extension として扱いやすい。</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <p>配置と運用の観点に戻る場合は <a href="system.html">システムアーキテクチャ</a> を見る。</p>
+      </footer>
+    </main>
+  </body>
+</html>
