@@ -1,0 +1,6 @@
+node_modules/
+result
+tsconfig.tsbuildinfo
+.devenv/
+.direnv/
+.DS_Store
